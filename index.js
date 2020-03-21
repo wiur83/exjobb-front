@@ -6,9 +6,10 @@ const mongoose = require('mongoose');
 const fetch = require("node-fetch");
 const jwt = require("jsonwebtoken");
 
-const User = require("./model/User");
-const bcrypt = require("bcryptjs");
-const { registerValidation, loginValidation } = require("./validation");
+// const User = require("./model/User");
+// const bcrypt = require("bcryptjs");
+// const { registerValidation, loginValidation } = require("./validation");
+
 
 // //Importing routes
 // const authRoute = require("./routes/auth");
@@ -19,11 +20,13 @@ let globalToken = "";
 //Config
 dotenv.config();
 app.use(express.urlencoded({ extended: false }));
-
-//connecting to db
-mongoose.connect( process.env.DB_CONNECT, {useNewUrlParser: true, useUnifiedTopology: true}, () =>
-    console.log("connected to DB")
-);
+//
+//
+//
+// //connecting to db
+// mongoose.connect( process.env.DB_CONNECT, {useNewUrlParser: true, useUnifiedTopology: true}, () =>
+//     console.log("connected to DB")
+// );
 
 //Index GET
 app.get("/", (req, res) => {
@@ -92,7 +95,7 @@ app.post("/login", async (req, res) => {
                 //Wrong_email / pass eller email_exist alt. error(kolla)
                 //FIXA UTSKRIFT MED EJS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 globalToken = result.msg;
-                console.log(result.msg);
+                // console.log(result.msg);
                 res.redirect('./token');
             })
     } catch(err) {
@@ -111,24 +114,52 @@ app.get("/logout", (req, res) => {
 
 
 //TEST ROUTE(testing moddleware)
-app.get("/token", verify_token, (req, res) => {
-    res.render("token.ejs");
-});
-
-function verify_token(req, res, next) {
+app.get("/token", async (req, res) => {
     const token = globalToken;
-    // const verified = jwt.verify(token, process.env.TOKEN_SECRET);
-    // console.log(verified);
-    if (!token) return res.status(401).send("access denied");
 
     try {
-        const verified = jwt.verify(token, process.env.TOKEN_SECRET);
-        req.user = verified;
-        next();
-    } catch (err) {
-        return res.status(400).send("Invalid token");
+        await fetch('http://localhost:3000/token-server', {
+            method: 'post',
+            headers: {
+                'Accept': 'application/json, text/plain, */*',
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify({
+              token: token
+            })
+            }).then(function (response) {
+                return response.json();
+            })
+            .then(function (result) {
+                if (result.msg == "Access denied") {
+                    res.render("error.ejs", {msg: "Access denied"});
+                } else if (result.msg == "Invalid token") {
+                    res.render("error.ejs", {msg: "Invalid token"});
+                } else {
+                    //Sätt användar idt till en global variabel?
+                    res.render("token.ejs");
+                }
+            })
+    } catch(err) {
+          res.render("error.ejs", {msg: "Ops! Something went wrong. Try again."});
     }
-}
+
+});
+
+// function verify_token(req, res, next) {
+//     const token = globalToken;
+//     // const verified = jwt.verify(token, process.env.TOKEN_SECRET);
+//     // console.log(verified);
+//     if (!token) return res.status(401).send("access denied");
+//
+//     try {
+//         const verified = jwt.verify(token, process.env.TOKEN_SECRET);
+//         req.user = verified;
+//         next();
+//     } catch (err) {
+//         return res.status(400).send("Invalid token");
+//     }
+// }
 
 
 
