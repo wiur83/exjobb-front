@@ -24,6 +24,15 @@ const api_adress = "http://localhost:3000";
 const port = 3001;
 
 
+
+//VOICE!!!!!!!!!!!!!!!!!!!!!?
+// cont btn = document.query
+
+
+
+
+
+
 //Index GET
 app.get("/", (req, res) => {
     res.render("index.ejs");
@@ -51,9 +60,6 @@ app.post("/register", async (req, res) => {
                 return response.json();
             })
             .then(function (result) {
-                //IFsats med om token eller email eller apssword så gör olika
-                //Wrong_email / pass eller email_exist alt. error(kolla)
-                //FIXA UTSKRIFT MED EJS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 res.redirect('./login');
             })
     } catch(err) {
@@ -84,11 +90,7 @@ app.post("/login", async (req, res) => {
                 return response.json();
             })
             .then(function (result) {
-                //IFsats med om token eller email eller apssword så gör olika
-                //Wrong_email / pass eller email_exist alt. error(kolla)
-                //FIXA UTSKRIFT MED EJS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 globalToken = result.msg;
-                // console.log(result.msg);
                 res.redirect('./token');
             })
     } catch(err) {
@@ -127,7 +129,7 @@ app.get("/token", async (req, res) => {
                 if (result.msg == "Access denied") {
                     res.render("error.ejs", {msg: "Access denied"});
                 } else if (result.msg == "Invalid token") {
-                    res.render("error.ejs", {msg: "Invalid token"});
+                    res.render("error.ejs", {msg: "Wrong email or password!"});
                 } else {
                     //Sätt användar idt till en global variabel?
                     res.render("token.ejs");
@@ -151,4 +153,4 @@ app.get("/token", async (req, res) => {
 app.use(express.json());
 
 
-app.listen(port, () => console.log(`the server is running on posrt ${port}`));
+app.listen(port, () => console.log(`the server is running on port ${port}`));
