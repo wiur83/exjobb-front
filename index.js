@@ -1,38 +1,33 @@
-//Importing modules
+//IMPORTING MODULES
 const express = require('express');
 const app = express();
 const dotenv = require("dotenv");
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
 const fetch = require("node-fetch");
-const jwt = require("jsonwebtoken");
+// const jwt = require("jsonwebtoken");
 
-// const User = require("./model/User");
-// const bcrypt = require("bcryptjs");
-// const { registerValidation, loginValidation } = require("./validation");
-
-
-// //Importing routes
-// const authRoute = require("./routes/auth");
-// const testRoute = require("./routes/test"); //Test
-
-let globalToken = "";
-
-//Config
+//CONFIG
 dotenv.config();
+//BYta mot body parser?
 app.use(express.urlencoded({ extended: false }));
-//
-//
-//
-// //connecting to db
-// mongoose.connect( process.env.DB_CONNECT, {useNewUrlParser: true, useUnifiedTopology: true}, () =>
-//     console.log("connected to DB")
-// );
+// Set EJS as templating engine
+app.set('view engine', 'ejs');
+// Set css middleware
+app.use("/", express.static("assets"));
+
+//VARIABLES
+//Token
+let globalToken = "";
+//Server name
+const api_adress = "http://localhost:3000";
+//Port number
+const port = 3001;
+
 
 //Index GET
 app.get("/", (req, res) => {
     res.render("index.ejs");
 });
-
 
 //register GET
 app.get("/register", (req, res) => {
@@ -41,7 +36,7 @@ app.get("/register", (req, res) => {
 //register POST
 app.post("/register", async (req, res) => {
     try {
-        await fetch('http://localhost:3000/api/user/register', {
+        await fetch(`${api_adress}/api/user/register`, {
             method: 'post',
             headers: {
                 'Accept': 'application/json, text/plain, */*',
@@ -68,8 +63,6 @@ app.post("/register", async (req, res) => {
 });
 
 
-
-
 //Login GET
 app.get("/login", (req, res) => {
     res.render("login.ejs");
@@ -77,7 +70,7 @@ app.get("/login", (req, res) => {
 //login POST
 app.post("/login", async (req, res) => {
     try {
-        await fetch('http://localhost:3000/api/user/login', {
+        await fetch(`${api_adress}/api/user/login`, {
             method: 'post',
             headers: {
                 'Accept': 'application/json, text/plain, */*',
@@ -118,7 +111,7 @@ app.get("/token", async (req, res) => {
     const token = globalToken;
 
     try {
-        await fetch('http://localhost:3000/token-server', {
+        await fetch(`${api_adress}/token-server`, {
             method: 'post',
             headers: {
                 'Accept': 'application/json, text/plain, */*',
@@ -146,21 +139,6 @@ app.get("/token", async (req, res) => {
 
 });
 
-// function verify_token(req, res, next) {
-//     const token = globalToken;
-//     // const verified = jwt.verify(token, process.env.TOKEN_SECRET);
-//     // console.log(verified);
-//     if (!token) return res.status(401).send("access denied");
-//
-//     try {
-//         const verified = jwt.verify(token, process.env.TOKEN_SECRET);
-//         req.user = verified;
-//         next();
-//     } catch (err) {
-//         return res.status(400).send("Invalid token");
-//     }
-// }
-
 
 
 
@@ -171,8 +149,6 @@ app.get("/token", async (req, res) => {
 
 //middleware
 app.use(express.json());
-// //Route middleware
-// app.use("/api/user", authRoute);
-// app.use("/test/token", testRoute); //Test
 
-app.listen(3001, () => console.log("the server is running on posrt 3001"));
+
+app.listen(port, () => console.log(`the server is running on posrt ${port}`));
